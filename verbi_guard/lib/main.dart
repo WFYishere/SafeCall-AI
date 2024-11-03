@@ -1,125 +1,122 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:permission_handler/permission_handler.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void main() => runApp(SafetyCallApp());
 
-  // This widget is the root of your application.
+class SafetyCallApp extends StatelessWidget {
+  const SafetyCallApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      home: Scaffold(
+        appBar: AppBar(title: Text("Safety Call")),
+        body: SafetyCallHome(),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class SafetyCallHome extends StatefulWidget {
+  const SafetyCallHome({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SafetyCallHomeState createState() => _SafetyCallHomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _SafetyCallHomeState extends State<SafetyCallHome> {
+  final FlutterTts _flutterTts = FlutterTts();  // TTS instance
+  final stt.SpeechToText _speech = stt.SpeechToText();  // STT instance
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  String _text = "";        // Text input and TTS output
+  String _sttText = "";     // Stores the converted text from STT
+  bool _isListening = false;  // Track if STT is currently listening
+
+  Future<void> _speakText() async {
+    await _flutterTts.setLanguage("en-US");
+    await _flutterTts.setPitch(1.0);
+    await _flutterTts.speak(_text);
+  }
+
+  // Method to start listening and convert speech to text
+  Future<void> _startListening() async {
+    // Check and request microphone permission
+    var status = await Permission.microphone.status;
+    if (!status.isGranted) {
+      status = await Permission.microphone.request();
+    }
+
+    // Only proceed if microphone permission is granted
+    if (status.isGranted) {
+      bool available = await _speech.initialize(
+        onStatus: (status) => print("STT status: $status"),
+        onError: (error) => print("STT error: $error"),
+      );
+      print("STT initialization result: $available");
+
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (result) {
+            print("STT result: ${result.recognizedWords}"); 
+            setState(() {
+              _sttText = result.recognizedWords;
+            });
+          },
+          listenFor: Duration(seconds: 10),
+          pauseFor: Duration(seconds: 5),
+        );
+
+      } else {
+        print("Speech recognition unavailable.");
+      }
+    } else {
+      print("Microphone permission not granted.");
+    }
+  }
+
+
+
+
+  // Method to stop listening
+  void _stopListening() {
+    _speech.stop();
+    setState(() => _isListening = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextField(
+            onChanged: (value) {
+              _text = value;
+            },
+            decoration: InputDecoration(hintText: "Enter text to speak"),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _speakText,
+            child: Text("Speak"),
+          ),
+          SizedBox(height: 20),
+          Text(
+            "Speech-to-Text Result: $_sttText",
+            style: TextStyle(fontSize: 16),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _isListening ? _stopListening : _startListening,
+            child: Text(_isListening ? "Stop Listening" : "Start Listening"),
+          ),
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
