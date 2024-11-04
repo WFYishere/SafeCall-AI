@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(SafetyCallApp());
 
@@ -118,5 +119,20 @@ class _SafetyCallHomeState extends State<SafetyCallHome> {
         ],
       ),
     );
+  }
+}
+
+Future<String> fetchProcessedText(String text) async {
+  final response = await http.post(
+    Uri.parse('http://localhost:5000/process'), 
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"text": text}),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data["result"];
+  } else {
+    throw Exception("Failed to process text");
   }
 }
