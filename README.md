@@ -31,16 +31,12 @@ Using SafeCall AI, she can initiate a fake phone call with her “dad,” during
 
 - **AI-Powered Conversations:** Powered by Google Gemini, the app generates natural and convincing dialogues.  
 
-- **Customizable Profiles:** Users can set up predefined callers,including partner or family members, and personalize scenarios to make the interactions more believable.
-
-- **Future Features:** Planned enhancements include automatic emergency detection, offline functionality, and safe word detection.  
-
 ### How We Built It  
 
 - **Frontend:** Developed using Flutter for a responsive and seamless cross-platform experience.  
 
 
-- **Backend:** Integrated with Google Gemini API for natural language processing and flutter text to speech for voice synthesis.  
+- **Backend:** Finetuned Gemini 1.5 flash and integrate Google AI Studio for Natural Language Processing. Utilized flutter text to speech for voice synthesis.  
 
 ### Challenges We Ran Into  
 
@@ -60,11 +56,11 @@ Using SafeCall AI, she can initiate a fake phone call with her “dad,” during
 
 ### What We Learned  
 
-- Understanding the importance of designing solutions that prioritize user safety and meet real-world needs with empathy.
+- The importance of designing solutions that prioritize user safety and meet real-world needs with empathy.
 
-- Mastering Google Gemini’s advanced capabilities for NLP and learning how to effectively develop with Flutter for a smooth user experience.
+- Ability to master Google Gemini’s advanced capabilities for NLP and develop with Flutter for a smooth user experience.
 
-- Overcoming the complexities of creating believable and natural conversations for critical safety scenarios.
+- Ability to create believable and natural conversations for critical safety scenarios.
 
 ### What's Next for SafeCall AI  
 
@@ -79,3 +75,76 @@ Using SafeCall AI, she can initiate a fake phone call with her “dad,” during
 - **Enhanced Customization:** Expanded options for creating multiple caller personas and customizing conversations.  
 
 - **Multilingual Support:** Enabling fake calls in multiple languages to make the app more inclusive.  
+
+---
+
+## How to Run SafeCall AI  
+
+1. Clone this repository to your local machine:  
+
+   ```bash
+   git clone https://github.com/YourUsername/SafeCall-AI.git
+   cd verbi_guard
+   ```
+   
+2. Install dependencies (assuming that flutter and android studio and related extensions are installed)
+
+    ```bash
+    flutter pub get
+    ```
+
+3. Run the app:
+
+    ```bash
+    flutter run
+    ```
+
+---
+
+## Technologies Used  
+
+- **Google Gemini API**: For natural language processing and voice synthesis.  
+
+- **Flutter**: For cross-platform frontend development. 
+
+- **Dart**: Programming language for app logic and Flutter integration.  
+
+---
+## Contributing  
+
+We welcome contributions to enhance SafeCall AI! To contribute:  
+
+1. Fork the repository.  
+
+2. Create a feature branch:  
+
+   ```bash
+   git checkout -b feature-name
+   ```  
+
+3. Commit your changes:  
+
+   ```bash
+   git commit -m "Add feature"
+   ```  
+
+4. Push your branch and create a pull request.  
+
+---
+
+## License  
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.  
+
+---
+
+## Contact  
+
+For any questions or feedback, feel free to reach out at:
+wenfayu2005@hotmail.com
+
+or
+
+stacyli413@gmail.com
+
+---
